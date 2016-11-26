@@ -3,6 +3,7 @@ import numpy as np
 import glob
 import pandas as pd
 
+'''
 img_list = glob.glob('../train/*.jpg')
 
 labels = pd.read_csv('../train.csv')
@@ -23,6 +24,21 @@ for j in range(0, 7):
         label = labels[i]-1
 
         out = np.array(list(label) + list(r) + list(g) + list(b), np.uint8)
-        #out.tofile("out.bin")
         f.write(out)
     f.close()
+'''
+
+img_list = glob.glob('../val/*.jpg')
+f = open('val.bin','wb')
+for i in range(0, len(img_list)):
+    im = Image.open(img_list[i])
+    im = np.array(im)
+
+    r = im[:, :, 0].flatten()
+    g = im[:, :, 1].flatten()
+    b = im[:, :, 2].flatten()
+    label = [0]
+
+    out = np.array(list(label) + list(r) + list(g) + list(b), np.uint8)
+    f.write(out)
+f.close()

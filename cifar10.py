@@ -154,10 +154,23 @@ def distorted_inputs():
   data_dir = os.path.join(FLAGS.data_dir, 'cifar-10-batches-bin')
   images, labels = cifar10_input.distorted_inputs(data_dir=data_dir,
                                                   batch_size=FLAGS.batch_size)
+
+  gaussian_filter = [[0.002969, 0.013306, 0.021938, 0.013306, 0.002969],
+                [0.013306, 0.059634, 0.09832, 0.059634, 0.013306],
+                [0.021938, 0.09832, 0.1621, 0.09832, 0.021938],
+                [0.013306, 0.059634, 0.09832, 0.059634, 0.013306],
+                [0.002969, 0.013306, 0.021938, 0.013306, 0.002969]]
+
+  gaussian_filter = tf.expand_dims(gaussian_filter, 2)
+  gaussian_filter = tf.concat(2, [gaussian_filter, gaussian_filter, gaussian_filter])
+  gaussian_filter = tf.expand_dims(gaussian_filter, 3)
+
+  filtered_img = tf.nn.depthwise_conv2d(images, gaussian_filter, strides=[1, 1, 1, 1], padding='SAME')
+  resized_image = tf.image.resize_images(filtered_img, [IMAGE_SIZE, IMAGE_SIZE])
   if FLAGS.use_fp16:
-    images = tf.cast(images, tf.float16)
+    resized_image = tf.cast(resized_image, tf.float16)
     labels = tf.cast(labels, tf.float16)
-  return images, labels
+  return resized_image, labels
 
 
 def inputs(eval_data):
@@ -293,6 +306,16 @@ def loss(logits, labels):
   # The total loss is defined as the cross entropy loss plus all of the weight
   # decay terms (L2 loss).
   return tf.add_n(tf.get_collection('losses'), name='total_loss')
+
+
+def accuracy(logits,labels):
+  labels = tf.cast(labels, tf.int64)
+  pred = tf.nn.softmax(logits)
+  result = tf.argmax(pred,1)
+  is_equal = tf.cast(tf.equal(labels,result), tf.float64)
+  acc = tf.reduce_mean(is_equal)
+  tf.scalar_summary('Train_ACC', acc)
+  return acc
 
 
 def _add_loss_summaries(total_loss):
