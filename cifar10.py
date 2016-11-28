@@ -192,10 +192,24 @@ def inputs(eval_data):
   images, labels = cifar10_input.inputs(eval_data=eval_data,
                                         data_dir=data_dir,
                                         batch_size=FLAGS.batch_size)
+
+  gaussian_filter = [[0.002969, 0.013306, 0.021938, 0.013306, 0.002969],
+                     [0.013306, 0.059634, 0.09832, 0.059634, 0.013306],
+                     [0.021938, 0.09832, 0.1621, 0.09832, 0.021938],
+                     [0.013306, 0.059634, 0.09832, 0.059634, 0.013306],
+                     [0.002969, 0.013306, 0.021938, 0.013306, 0.002969]]
+
+  gaussian_filter = tf.expand_dims(gaussian_filter, 2)
+  gaussian_filter = tf.concat(2, [gaussian_filter, gaussian_filter, gaussian_filter])
+  gaussian_filter = tf.expand_dims(gaussian_filter, 3)
+
+  filtered_img = tf.nn.depthwise_conv2d(images, gaussian_filter, strides=[1, 1, 1, 1], padding='SAME')
+  resized_image = tf.image.resize_images(filtered_img, [IMAGE_SIZE, IMAGE_SIZE])
+
   if FLAGS.use_fp16:
-    images = tf.cast(images, tf.float16)
+    resized_image = tf.cast(resized_image, tf.float16)
     labels = tf.cast(labels, tf.float16)
-  return images, labels
+  return resized_image, labels
 
 
 def inference(images):

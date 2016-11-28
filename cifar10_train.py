@@ -17,7 +17,7 @@
 
 Accuracy:
 cifar10_train.py achieves ~86% accuracy after 100K steps (256 epochs of
-data) as judged by cifar10_eval.py.
+data) as judged by cifar10_eval_test_set.py.
 
 Speed: With batch_size 128.
 
@@ -45,7 +45,7 @@ from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 
 import cifar10
-import cifar10_eval
+#import cifar10_eval
 
 FLAGS = tf.app.flags.FLAGS
 

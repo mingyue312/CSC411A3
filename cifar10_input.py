@@ -31,8 +31,8 @@ IMAGE_SIZE = 32
 
 # Global constants describing the CIFAR-10 data set.
 NUM_CLASSES = 8
-NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 7000
-NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 970
+NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 6000
+NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 1000
 
 
 def read_cifar10(filename_queue):
@@ -146,7 +146,7 @@ def distorted_inputs(data_dir, batch_size):
     images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
     labels: Labels. 1D tensor of [batch_size] size.
   """
-  filenames = ['./out0.bin','./out1.bin','./out2.bin','./out3.bin','./out4.bin','./out5.bin','./out6.bin']
+  filenames = ['./out0.bin','./out1.bin','./out2.bin','./out3.bin','./out4.bin','./out5.bin']
   # filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i)
   #              for i in xrange(1, 6)]
   for f in filenames:
