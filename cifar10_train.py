@@ -19,7 +19,7 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 1000,
+tf.app.flags.DEFINE_integer('max_steps', 20000,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
@@ -36,7 +36,7 @@ def train():
 
         # Build a Graph that computes the logits predictions from the
         # inference model.
-        logits = cifar10.inference(images, dropout=True, reuse=False)
+        logits = cifar10.inference(images, dropout=0.8, reuse=False)
 
         # Calculate loss.
         loss = cifar10.loss(logits, labels)
@@ -50,9 +50,10 @@ def train():
 
         # Setup cross validation right here
         # get a batch of xvalidation images
-        val_images, val_labels = cifar10.inputs(eval_data=True)
+        # eval_data=False: use cross validation, not test test set
+        val_images, val_labels = cifar10.inputs(eval_data=False)
 
-        val_logits = cifar10.inference(val_images, dropout=False, reuse=True)
+        val_logits = cifar10.inference(val_images, dropout=1, reuse=True)
 
         top_k_op = tf.nn.in_top_k(val_logits, val_labels, 1)
 
@@ -86,7 +87,7 @@ def train():
                 num_examples_per_step = FLAGS.batch_size
                 examples_per_sec = num_examples_per_step / duration
                 sec_per_batch = float(duration)
-                format_str = ('%s: step %d, loss = %.2f, acc = %.2f, batch_avg = %.2f (%.1f examples/sec; %.3f '
+                format_str = ('%s: step %d, loss = %.2f, acc = %.2f (%.1f examples/sec; %.3f '
                               'sec/batch)')
                 print(format_str % (datetime.now(), step, loss_value, acc_value,
                                     examples_per_sec, sec_per_batch))
